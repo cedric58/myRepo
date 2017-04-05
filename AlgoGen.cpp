@@ -21,7 +21,7 @@ using namespace std::chrono;
 // ***********************************************************
 
 static unsigned int g_seed;
-inline void fast_srand(int seed) {
+inline void fast_srand( int seed ) {
 	//Seed the generator
 	g_seed = seed;
 }
@@ -371,10 +371,10 @@ int main()
 				copyBestMove();
 				nextFitness[0] = actualFitness[bestMove];				
 			}
-			else
+			/*else
 			{
 				cerr << "Le muté est meilleur que le meilleur " << nextFitness[0] << " " << actualFitness[bestMove] << endl;
-			}
+			}*/
 
 			bestMove = 0;
 
