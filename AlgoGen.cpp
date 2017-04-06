@@ -3,10 +3,10 @@
 
 #pragma GCC optimize("-O3")
 #pragma GCC optimize("inline")
-#pragma GCC optimize("omit-frame-pointer")
+//#pragma GCC optimize("omit-frame-pointer")
 #pragma GCC optimize("unroll-loops")
 
-#include "stdafx.h"
+//#include "stdafx.h"
 
 #include <iostream>
 #include <chrono>
@@ -18,6 +18,30 @@ using namespace std;
 using namespace std::chrono;
 
 //TO DO VIRER LE RANDOM DANS LE CROSS
+
+#ifdef WITH_LOG
+    #define LOG(...)   cerr , __VA_ARGS__ , endl
+    #define LOGS(...)  cerr , __VA_ARGS__
+
+    template <typename T>
+    ostream& operator,(ostream& out, const T& t)
+    {
+        out << t;
+
+        return out;
+    }
+
+    // Overloaded version to handle all those special std::endl and others...
+    ostream& operator,(ostream& out, ostream&(*f)(ostream&))
+    {
+        out << f;
+
+        return out;
+    }
+#else
+    #define LOG(...)
+    #define LOGS(...)
+#endif
 
 
 // ***********************************************************
@@ -88,6 +112,7 @@ static int firstIndex;
 static int secondIndex;
 
 static int generation = 0;
+static int crossPt1 = 0;
 
 
 high_resolution_clock::time_point start;
@@ -279,6 +304,21 @@ inline void MergeActualMoveIndex1WithIndex2IntoNextMove()
 	}
 }
 
+inline void MergeActualMoveIndex1WithIndex2IntoNextMoveCross1Pt()
+{
+	crossPt1 = fastRandInt(DEPTH);
+	poolFEpp = poolFE + 1;
+	for (actualCoup = 0; actualCoup < crossPt1; ++actualCoup) {		
+			nextMove[poolFE][actualCoup] = actualMove[firstIndex][actualCoup];
+			nextMove[poolFEpp][actualCoup] = actualMove[secondIndex][actualCoup];
+	}
+	
+	for (actualCoup = crossPt1; actualCoup < DEPTH; ++actualCoup) {		
+			nextMove[poolFE][actualCoup] = actualMove[secondIndex][actualCoup];
+			nextMove[poolFEpp][actualCoup] = actualMove[firstIndex][actualCoup];
+	}	
+}
+
 void debugMove1()
 {
 	cerr << "Move 1 : " << endl;
@@ -321,7 +361,7 @@ int main()
 	}*/
 
 	int turn = 0;
-	double limit = turn ? 0.085 : 0.800;
+	double limit = turn ? 0.085 : 0.970;
 
 #define LIMIT TIME < limit	
 
@@ -346,7 +386,7 @@ int main()
 		start = NOW;
 		// cerr << "Time " << LIMIT << endl;
 
-		limit = turn ? 0.085 : 0.800;
+		limit = turn ? 0.085 : 0.970;
 
 		//En sortant du randomize on a déjà évalué les individus
 		while (LIMIT)
@@ -390,26 +430,27 @@ int main()
 				aIndex = fastRandInt(POOL);
 				//bIndex;
 
-				do {
+				//do {
 					bIndex = fastRandInt(POOL);
-				} while (bIndex == aIndex);
+				//} while (bIndex == aIndex);
 
 				firstIndex = actualFitness[aIndex] > actualFitness[bIndex] ? aIndex : bIndex;
 
-				do {
+				//do {
 					aIndex = fastRandInt(POOL);
-				} while (aIndex == firstIndex);
+				//} while (aIndex == firstIndex);
 
-				do {
+				//do {
 					bIndex = fastRandInt(POOL);
-				} while (bIndex == aIndex || bIndex == firstIndex);
+				//} while (bIndex == aIndex || bIndex == firstIndex);
 
 				secondIndex = actualFitness[aIndex] > actualFitness[bIndex] ? aIndex : bIndex;
 
 				//int[] child = actualMove[firstIndex]->merge(move1[secondIndex]);
 
 				//Dans nextMove poolFE et poolFE + 1
-				MergeActualMoveIndex1WithIndex2IntoNextMove();
+				//MergeActualMoveIndex1WithIndex2IntoNextMove();
+				MergeActualMoveIndex1WithIndex2IntoNextMoveCross1Pt();
 
 				if (!fastRandInt(MUTATION)) {
 					mutateNewIndividuInNextMove();
@@ -449,7 +490,7 @@ int main()
 			cerr << actualMove[bestMove][actualCoup] << " ";
 		}
 
-		cerr << "turn : " << turn << " nb generation : " << generation << endl;
+		cerr << "turn : " << turn << endl << " nb generation : " << generation << " individu " << generation * (POOL+1) << endl;
 		cout << "0 3" << endl;
 		turn++;
 		//system("pause");
