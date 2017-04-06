@@ -117,6 +117,9 @@ static int secondIndex;
 static int generation = 0;
 static /*const*/ int crossPt1 /*= DEPTH / 2*/;
 
+constexpr double TIME_TURN0 = 0.970; 
+constexpr double TIME_TURN_SUP = 0.097;
+
 /*static int* s;
 static int* s2;
 static int* d;
@@ -165,7 +168,7 @@ inline void randomize()
 {
 	for (actualCoup = 0; actualCoup < DEPTH; ++actualCoup)
 	{
-		actualMove[actualIndividu][actualCoup] = fastRandInt(10000);
+		actualMove[actualIndividu][actualCoup] = fastRandInt(30000);
 		//on peut déjà simuler la fitness ici
 		SimulateOnTempGSWithActualIndividuAndCoup(/*actualIndividu, actualCoup*/);
 
@@ -206,14 +209,14 @@ inline void copyBestMove()
 //TO DO mutate proprement
 inline void mutateCopyBestMove()
 {
-	nextMove[0][fastRandInt(DEPTH)] = fastRandInt(10000);
+	nextMove[0][fastRandInt(DEPTH)] = fastRandInt(30000);
 }
 
 //TO DO mutate proprement
 inline void mutateNewIndividuInNextMove()
 {
-	nextMove[poolFE][fastRandInt(DEPTH)] = fastRandInt(10000);
-	nextMove[poolFEpp][fastRandInt(DEPTH)] = fastRandInt(10000);
+	nextMove[poolFE][fastRandInt(DEPTH)] = fastRandInt(30000);
+	nextMove[poolFEpp][fastRandInt(DEPTH)] = fastRandInt(30000);
 }
 
 //TO DO Simulate proprement
@@ -416,7 +419,7 @@ int main()
 	}*/
 
 	int turn = 0;
-	double limit = turn ? 0.085 : 0.970;
+	double limit = TIME_TURN0;
 
 #define LIMIT TIME < limit	
 
@@ -440,8 +443,6 @@ int main()
 	{
 		start = NOW;
 		// cerr << "Time " << LIMIT << endl;
-
-		limit = turn ? 0.085 : 0.970;
 
 		//En sortant du randomize on a déjà évalué les individus
 		while (LIMIT)
@@ -509,20 +510,23 @@ int main()
 				//MergeActualMoveIndex1WithIndex2IntoNextMove();
 				MergeActualMoveIndex1WithIndex2IntoNextMoveCross1Pt();
 
-				if (poolFE > POOLDIV2/*!fastRandInt(MUTATION)*/) {
+				if (poolFE > POOLDIV2/*!fastRandInt(MUTATION)*/) 
 					mutateNewIndividuInNextMove();
-				}
+				
 
 				SimulateOnTempGSWithPoolFE();
 				SimulateOnTempGSWithPoolFEpp();
 
-				if (nextFitness[poolFE] > nextFitness[bestMove]) {
-					bestMove = poolFE;
-				}
+                //bestMove = nextFitness[poolFE] > nextFitness[bestMove] ? poolFE : bestMove;                 
+                //bestMove = nextFitness[poolFEpp] > nextFitness[bestMove] ? poolFEpp : bestMove; 
 
-				if (nextFitness[poolFEpp] > nextFitness[bestMove]) {
+				if (nextFitness[poolFE] > nextFitness[bestMove]) 
+					bestMove = poolFE;
+				
+
+				if (nextFitness[poolFEpp] > nextFitness[bestMove]) 
 					bestMove = poolFEpp;
-				}
+				
 
 				//poolFE += 2;
 				
@@ -553,7 +557,9 @@ int main()
 		cerr << "turn : " << turn << endl << " nb generation : " << generation << " individu " << generation * (POOL+1) << endl;
 		cout << "0 3" << endl;
 		turn++;
-		//system("pause");
+		//system("pause");		
+		
+		limit = TIME_TURN_SUP;
 	}
 
 	cerr << "nb generation : " << generation << endl;
