@@ -3,7 +3,7 @@
 
 #pragma GCC optimize("-O3")
 #pragma GCC optimize("inline")
-//#pragma GCC optimize("omit-frame-pointer")
+#pragma GCC optimize("omit-frame-pointer")
 #pragma GCC optimize("unroll-loops")
 
 //#include "stdafx.h"
@@ -73,7 +73,10 @@ inline double fastRandDouble(double a, double b) {
 
 constexpr int DEPTH = 20;
 constexpr int POOL = 51;
-constexpr double MUTATION = 2;
+constexpr int MUTATION = 2;
+
+constexpr int CROSSPT1 = 10;
+constexpr int POOLDIV2 = 25;
 
 //Etat de jeu
 static int actualGS;
@@ -112,7 +115,14 @@ static int firstIndex;
 static int secondIndex;
 
 static int generation = 0;
-static int crossPt1 = 0;
+static /*const*/ int crossPt1 /*= DEPTH / 2*/;
+
+/*static int* s;
+static int* s2;
+static int* d;
+static int* d2;
+static int* dend;
+static int* dend2;*/
 
 
 high_resolution_clock::time_point start;
@@ -307,7 +317,7 @@ inline void MergeActualMoveIndex1WithIndex2IntoNextMove()
 inline void MergeActualMoveIndex1WithIndex2IntoNextMoveCross1Pt()
 {
     //mettre une valeur en dur à la place de fastrandint fait gagner 2m individu
-	crossPt1 = fastRandInt(DEPTH);
+    //crossPt1 = 10/*fastRandInt(DEPTH)*/;
 	poolFEpp = poolFE + 1;
 	/*for (actualCoup = 0; actualCoup < crossPt1; ++actualCoup) {		
 			nextMove[poolFE][actualCoup] = actualMove[firstIndex][actualCoup];
@@ -339,9 +349,17 @@ inline void MergeActualMoveIndex1WithIndex2IntoNextMoveCross1Pt()
 	const int* s = actualMove[firstIndex];
 	const int* s2 = actualMove[secondIndex];
     int* d = nextMove[poolFE];
-    int* d2 = nextMove[poolFEpp];
-    const int*const dend = nextMove[poolFE] + crossPt1;
-    const int*const dend2 = nextMove[poolFE] + DEPTH;
+    int* d2 = nextMove[poolFEpp];    
+    const int*const dend = d + CROSSPT1;
+    const int*const dend2 = d + DEPTH;
+    
+    /*s = actualMove[firstIndex];
+	s2 = actualMove[secondIndex];
+    d = nextMove[poolFE];
+    d2 = nextMove[poolFEpp];
+    dend = nextMove[poolFE] + crossPt1;
+    dend2 = nextMove[poolFE] + DEPTH;*/
+    
     while ( d != dend )
     {
 	    *d++ = *s++;
@@ -430,6 +448,8 @@ int main()
 		{
 			// New generation
 			generation++;
+			
+			//crossPt1 = fastRandInt(DEPTH);
 
 			//cerr << "On rentre là" << endl;
 
@@ -489,7 +509,7 @@ int main()
 				//MergeActualMoveIndex1WithIndex2IntoNextMove();
 				MergeActualMoveIndex1WithIndex2IntoNextMoveCross1Pt();
 
-				if (!fastRandInt(MUTATION)) {
+				if (poolFE > POOLDIV2/*!fastRandInt(MUTATION)*/) {
 					mutateNewIndividuInNextMove();
 				}
 
@@ -504,7 +524,10 @@ int main()
 					bestMove = poolFEpp;
 				}
 
-				poolFE += 2;
+				//poolFE += 2;
+				
+				poolFE+=2;
+				//poolFE++;
 
 				//	nextMove[poolFE++] = child;
 
