@@ -306,9 +306,10 @@ inline void MergeActualMoveIndex1WithIndex2IntoNextMove()
 
 inline void MergeActualMoveIndex1WithIndex2IntoNextMoveCross1Pt()
 {
+    //mettre une valeur en dur à la place de fastrandint fait gagner 2m individu
 	crossPt1 = fastRandInt(DEPTH);
 	poolFEpp = poolFE + 1;
-	for (actualCoup = 0; actualCoup < crossPt1; ++actualCoup) {		
+	/*for (actualCoup = 0; actualCoup < crossPt1; ++actualCoup) {		
 			nextMove[poolFE][actualCoup] = actualMove[firstIndex][actualCoup];
 			nextMove[poolFEpp][actualCoup] = actualMove[secondIndex][actualCoup];
 	}
@@ -317,6 +318,42 @@ inline void MergeActualMoveIndex1WithIndex2IntoNextMoveCross1Pt()
 			nextMove[poolFE][actualCoup] = actualMove[secondIndex][actualCoup];
 			nextMove[poolFEpp][actualCoup] = actualMove[firstIndex][actualCoup];
 	}	
+	
+	int * startPtr = nextMove[poolFE];
+	int * startPtrpp = nextMove[poolFEpp];
+	int * endPtr = nextMove[poolFE][crossPt1];
+	int * endPtrpp = nextMove[poolFEpp];
+	
+	for (startPtr; startPtr != endPtr; ++startPtr) {		
+			startPtr[po[actualCoup] = actualMove[firstIndex][actualCoup];
+			nextMove[poolFEpp][actualCoup] = actualMove[secondIndex][actualCoup];
+	}*/
+	
+	/*const int* s = src;
+    int* d = dst;
+    const int*const dend = dst + n;
+    while ( d != dend )
+	    *d++ = *s++;
+	  */
+	  
+	const int* s = actualMove[firstIndex];
+	const int* s2 = actualMove[secondIndex];
+    int* d = nextMove[poolFE];
+    int* d2 = nextMove[poolFEpp];
+    const int*const dend = nextMove[poolFE] + crossPt1;
+    const int*const dend2 = nextMove[poolFE] + DEPTH;
+    while ( d != dend )
+    {
+	    *d++ = *s++;
+	    *d2++ = *s2++;
+    }
+    
+    while ( d != dend2 )
+    {
+	    *d2++ = *s++;
+	    *d++ = *s2++;
+    }
+	
 }
 
 void debugMove1()
