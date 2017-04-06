@@ -17,6 +17,8 @@
 using namespace std;
 using namespace std::chrono;
 
+//TO DO VIRER LE RANDOM DANS LE CROSS
+
 
 // ***********************************************************
 
